@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Web Sockets</title>
+</head>
+<body>
+   <style>
+      #box{
+         width:800px;
+         margin:0 auto;
+         height:400px;
+         border:5px solid gray;
+         border-radius:10px;
+         overflow-y: scroll;
+      }
+      .message{
+         font-size :12px;
+         position:relative;
+         margin-top:10px;
+         width:100%;
+         height:auto;
+         display:flow-root;
+      }
+      .server-message{
+         float:left;
+         padding: 7px 4px;
+         background-color:lightgray;
+         border-radius:0px 5px 5px 5px;
+         margin-left:5px;
+         width:auto;
+      }
+      
+      .client-message{
+         float:right;
+         padding: 7px 4px;
+         background-color:darkcyan;
+         border-radius:5px 0px 5px 5px;
+         margin-right:5px;
+         width:auto;
+      }
+      .time{
+         font-size:8px;
+         padding:2px!important;
+         color:darkred;
+      }
+
+   </style>
+   <div id="box" style="width:400px;">
+     
+   </div>
+   
+   <div style="text-align:center"><input type="text" style="text-align:center" id="input"/>
+   <button type="button" style="text-align:center" id="button">Send</button>
+</div> 
+   <script type="text/javascript">
+      var name= prompt("What is your name?");
+     var socket = new WebSocket("ws://localhost:5001");
+
+     socket.onopen = function(event) {
+      socket.send(JSON.stringify({
+         type:"name",
+         data:name
+      }))
+     };
+
+     socket.onmessage = function(event) {
+      var date=new Date();
+      var time=""+date.getHours()+":"+date.getMinutes();
+      var obj = JSON.parse(event.data);
+      document.getElementById("box").innerHTML += ('<div class="message"><span class="server-message"><span class="time">'+time+'</span><br>'+obj.name+' : '+ obj.data+ '</span></div>')
+     };
+     socket.onerror = function(error) {
+        console.error("WebSocket error observed:", error);
+     };
+
+     document.getElementById("button").onclick = function() {
+        var message = document.getElementById("input").value;
+        socket.send(JSON.stringify({
+         type:"message",
+         data:message
+        }));
+        
+      var date=new Date();
+      var time=""+date.getHours()+":"+date.getMinutes();
+        document.getElementById("box").innerHTML += ('<div class="message"><span class="client-message"><span class="time">'+time+'</span><br> Siz : '+ message+ '</span></div>')
+        document.getElementById("input").value="";
+      };
+   </script>
+</body>
+</html>
